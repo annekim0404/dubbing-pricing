@@ -14,13 +14,14 @@ st.markdown(
         padding-right: 2rem;
     }
     h1 {
-        font-size: 1.75rem !important;
+        font-size: 2rem !important;
         margin-bottom: 0.2rem !important;
+        margin-top: -1rem !important;
         text-align: center;
         white-space: nowrap;
     }
     h2, [data-testid="stSubheader"] {
-        font-size: 1.5rem !important;
+        font-size: 1.2rem !important;
         text-align: center;
         margin-top: 0.3rem !important;
         margin-bottom: 0.3rem !important;
@@ -215,7 +216,6 @@ left_col, gap_col, right_col = st.columns([5, 1, 3])
 # 왼쪽: 입력 항목
 # ===========================================================================
 with left_col:
-    st.markdown("---")
     st.subheader("1. 단가 산정 기준")
 
     selections: dict[str, int] = {}
@@ -330,7 +330,6 @@ with right_col:
     total_low = int(subtotal_low * (1 + rush_rate))
     total_high = int(subtotal_high * (1 + rush_rate))
 
-    st.markdown("---")
     st.subheader("3. 산출 결과")
 
     card_html = f"""
