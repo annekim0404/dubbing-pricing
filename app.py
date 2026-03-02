@@ -9,7 +9,7 @@ st.markdown(
     <style>
     /* 상단 여백 축소 */
     .block-container {
-        max-width: 1400px;
+        max-width: 1200px;
         margin: 0 auto;
         padding-top: 1rem !important;
         padding-left: 2rem;
@@ -23,6 +23,7 @@ st.markdown(
         font-size: 1.5rem !important;
         margin-bottom: 0.2rem !important;
         text-align: center;
+        white-space: nowrap;
     }
     h2, [data-testid="stSubheader"] {
         font-size: 1.1rem !important;
@@ -48,7 +49,7 @@ st.markdown(
     .stSelectbox [data-baseweb="select"] span {
         white-space: normal !important;
         word-break: break-word !important;
-        font-size: 13px !important;
+        font-size: 11px !important;
     }
     .stNumberInput label p {
         font-size: 13px !important;
@@ -258,7 +259,7 @@ for factor in FACTORS:
 # 2. 특수 작업 / 제작 환경 — 3열 배치
 # ---------------------------------------------------------------------------
 st.markdown("---")
-st.subheader("2. 특수 작업 / 제작 환경")
+st.subheader("2. 특수 작업")
 
 row2 = st.columns(3)
 with row2[0]:
