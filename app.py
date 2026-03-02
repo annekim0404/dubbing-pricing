@@ -21,7 +21,7 @@ st.markdown(
         white-space: nowrap;
     }
     h2, [data-testid="stSubheader"] {
-        font-size: 1rem !important;
+        font-size: 0.8rem !important;
         text-align: center;
         margin-top: 0.3rem !important;
         margin-bottom: 0.3rem !important;
@@ -367,6 +367,7 @@ with right_col:
     """
     st.markdown(card_html, unsafe_allow_html=True)
 
+    st.markdown("<div style='margin-top:2rem;'></div>", unsafe_allow_html=True)
     with st.expander("점수 상세 내역"):
         df = pd.DataFrame(breakdown_rows)
         st.dataframe(df, use_container_width=True, hide_index=True)
