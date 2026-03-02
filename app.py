@@ -29,7 +29,7 @@ st.markdown(
     h4 {
         font-size: 0.9rem !important;
         margin-top: 0.6rem !important;
-        margin-bottom: 0.1rem !important;
+        margin-bottom: 0.05rem !important;
     }
     .stSelectbox label p {
         font-size: 13px !important;
