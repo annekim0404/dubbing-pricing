@@ -21,15 +21,15 @@ st.markdown(
         white-space: nowrap;
     }
     h2, [data-testid="stSubheader"] {
-        font-size: 1.2rem !important;
+        font-size: 1rem !important;
         text-align: center;
         margin-top: 0.3rem !important;
         margin-bottom: 0.3rem !important;
     }
     h4 {
         font-size: 0.9rem !important;
-        margin-top: 0.2rem !important;
-        margin-bottom: 0.2rem !important;
+        margin-top: 0.6rem !important;
+        margin-bottom: 0.1rem !important;
     }
     .stSelectbox label p {
         font-size: 11px !important;
