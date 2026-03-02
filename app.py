@@ -24,7 +24,7 @@ st.markdown(
         font-size: 0.8rem !important;
         text-align: center;
         margin-top: 0.3rem !important;
-        margin-bottom: -0.2rem !important;
+        margin-bottom: -0.6rem !important;
     }
     h4 {
         font-size: 0.9rem !important;
