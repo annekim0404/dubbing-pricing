@@ -67,7 +67,7 @@ st.title("가우디오랩 더빙 가격 산정기")
 # ---------------------------------------------------------------------------
 FACTORS = [
     {
-        "category": "Performance",
+        "category": "연기 / 기술",
         "name": "연기력 난이도",
         "description": "얼마나 다양한 감정을 어느정도의 깊이로 표현해야 하는가",
         "weight": 0.20,
@@ -80,7 +80,7 @@ FACTORS = [
         },
     },
     {
-        "category": "Performance",
+        "category": "연기 / 기술",
         "name": "립싱크 난이도",
         "description": "입이 많이 나와서 싱크에 공수가 많이 드는지 여부",
         "weight": 0.10,
@@ -93,7 +93,7 @@ FACTORS = [
         },
     },
     {
-        "category": "Performance",
+        "category": "연기 / 기술",
         "name": "음질 난이도",
         "description": "DME SEP 등 기존 영상의 음질 수준에 따른 난이도",
         "weight": 0.15,
