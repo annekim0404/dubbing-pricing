@@ -217,6 +217,7 @@ left_col, gap_col, right_col = st.columns([5, 1, 3])
 # ===========================================================================
 with left_col:
     st.subheader("1. 단가 산정 기준")
+    st.markdown("<div style='margin-top:-1rem;'></div>", unsafe_allow_html=True)
 
     selections: dict[str, int] = {}
     current_category = None
