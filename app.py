@@ -372,10 +372,17 @@ with right_col:
         st.dataframe(df, use_container_width=True, hide_index=True)
 
     with st.expander("Pricing Tier 참조표"):
-        tier_df = pd.DataFrame(
-            [{"Tier": int(t), "Price Range ($)": f"{lo} – {hi}"} for t, lo, hi in TIERS]
-        )
-        styled = tier_df.style.set_properties(**{"text-align": "center"}).set_table_styles(
-            [{"selector": "th", "props": [("text-align", "center")]}]
-        )
-        st.dataframe(styled, use_container_width=True, hide_index=True)
+        tier_html = """
+        <table style="width:100%; border-collapse:collapse; text-align:center;">
+            <thead>
+                <tr style="border-bottom:2px solid #ddd;">
+                    <th style="padding:6px; text-align:center;">Tier</th>
+                    <th style="padding:6px; text-align:center;">Price Range ($)</th>
+                </tr>
+            </thead>
+            <tbody>
+        """
+        for t, lo, hi in TIERS:
+            tier_html += f'<tr style="border-bottom:1px solid #eee;"><td style="padding:6px; text-align:center;">{int(t)}</td><td style="padding:6px; text-align:center;">{lo} – {hi}</td></tr>'
+        tier_html += "</tbody></table>"
+        st.markdown(tier_html, unsafe_allow_html=True)
