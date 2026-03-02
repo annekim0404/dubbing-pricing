@@ -14,13 +14,13 @@ st.markdown(
         padding-right: 2rem;
     }
     h1 {
-        font-size: 1.5rem !important;
+        font-size: 1.75rem !important;
         margin-bottom: 0.2rem !important;
         text-align: center;
         white-space: nowrap;
     }
     h2, [data-testid="stSubheader"] {
-        font-size: 1.05rem !important;
+        font-size: 1.5rem !important;
         text-align: center;
         margin-top: 0.3rem !important;
         margin-bottom: 0.3rem !important;
