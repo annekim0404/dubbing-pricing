@@ -346,7 +346,7 @@ with right_col:
         </div>
         <div style="margin-bottom:0.8rem;">
             <div style="font-size:0.75rem; color:#666; margin-bottom:2px;">Pricing Tier</div>
-            <div style="font-size:1.4rem; font-weight:700; color:#1a1a2e;">{tier_score:.1f}</div>
+            <div style="font-size:1.4rem; font-weight:700; color:#1a1a2e;">{int(tier_score)}</div>
         </div>
         <div style="margin-bottom:0.8rem;">
             <div style="font-size:0.75rem; color:#666; margin-bottom:2px;">분당 가격 범위</div>
