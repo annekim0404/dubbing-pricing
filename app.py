@@ -369,8 +369,7 @@ with right_col:
     st.markdown("<div style='margin-top:2rem;'></div>", unsafe_allow_html=True)
     with st.expander("점수 상세 내역"):
         df = pd.DataFrame(breakdown_rows)
-        styled = df.style.set_properties(subset=["점수"], **{"text-align": "left"})
-        st.dataframe(styled, use_container_width=True, hide_index=True)
+        st.dataframe(df, use_container_width=True, hide_index=True)
 
     with st.expander("Pricing Tier 참조표"):
         tier_html = """
