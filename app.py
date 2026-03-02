@@ -263,14 +263,22 @@ with left_col:
         song_cost_per_min = SONG_DUB_LEVELS[song_level][1]
 
     with row2[1]:
-        song_duration_min = st.number_input(
-            "**총 노래 길이 (분)**",
-            min_value=0.0,
-            value=0.0,
-            step=0.5,
-            help="더빙 대상 노래의 총 길이(분)",
-            disabled=(song_level == 0),
-        )
+        sub_left, sub_right = st.columns([2, 1])
+        with sub_left:
+            song_duration_min = st.number_input(
+                "**총 노래 길이 (분)**",
+                min_value=0.0,
+                value=0.0,
+                step=0.5,
+                help="더빙 대상 노래의 총 길이(분)",
+                disabled=(song_level == 0),
+            )
+        with sub_right:
+            song_price = song_cost_per_min * song_duration_min
+            if song_level > 0 and song_duration_min > 0:
+                st.markdown(f"<div style='padding-top:2rem; font-size:0.85rem; font-weight:600; color:#0969da;'>${int(song_price):,}</div>", unsafe_allow_html=True)
+            else:
+                st.markdown("<div style='padding-top:2rem; font-size:0.85rem; color:#888;'>—</div>", unsafe_allow_html=True)
 
     with row2[2]:
         onscreen_text = st.selectbox(
