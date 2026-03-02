@@ -377,7 +377,13 @@ with right_col:
     st.markdown("<div style='margin-top:1rem;'></div>", unsafe_allow_html=True)
     content_name = st.text_input("**콘텐츠 이름**", placeholder="예: Nosy's Inspiration", key="content_name")
 
-    if st.button("📊 시트에 저장", disabled=(not content_name)):
+    btn_col1, btn_col2 = st.columns([1, 2])
+    with btn_col1:
+        is_final = st.checkbox("최종", key="is_final")
+    with btn_col2:
+        save_clicked = st.button("📊 시트에 저장", disabled=(not content_name))
+
+    if save_clicked:
         try:
             # 서비스 계정 인증
             scopes = ["https://www.googleapis.com/auth/spreadsheets"]
@@ -400,7 +406,7 @@ with right_col:
             # 데이터 구성 (log 시트 Row 1~16에 맞춤)
             song_price = song_cost_per_min * song_duration_min if song_level > 0 else 0
             col_data = [
-                content_name,                                        # Row 1: 콘텐츠 이름
+                f"{content_name} (최종)" if is_final else content_name,  # Row 1: 콘텐츠 이름
                 str(selections["연기력 난이도"]),                      # Row 2: 연기력
                 str(selections["립싱크 난이도"]),                      # Row 3: 립싱크
                 str(selections["음질 난이도"]),                        # Row 4: 음질
