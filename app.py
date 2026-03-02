@@ -272,8 +272,7 @@ with left_col:
             disabled=(song_level == 0),
         )
 
-    row2b = st.columns(3)
-    with row2b[0]:
+    with row2[2]:
         onscreen_text = st.selectbox(
             "**온스크린 텍스트 더빙**",
             ["N — 해당 없음", "Y — 적용"],
