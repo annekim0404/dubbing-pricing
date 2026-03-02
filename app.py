@@ -392,13 +392,15 @@ with right_col:
                 creds = Credentials.from_service_account_file(creds_path, scopes=scopes)
             else:
                 # Streamlit Cloud: secrets에서 로드
-                creds_dict = json.loads(st.secrets["GOOGLE_CREDENTIALS"], strict=False)
-                # PEM 키의 실제 줄바꿈을 \n 이스케이프로 복원
-                if "private_key" in creds_dict:
-                    pk = creds_dict["private_key"]
-                    pk = pk.replace("\n ", "\n").replace(" \n", "\n")
-                    lines = [l.strip() for l in pk.strip().splitlines()]
-                    creds_dict["private_key"] = "\n".join(lines) + "\n"
+                raw = st.secrets["GOOGLE_CREDENTIALS"]
+                # TOML이 \n을 실제 줄바꿈으로 변환하므로 되돌림
+                # 단, PEM 본문 줄바꿈은 유지해야 하므로 헤더/푸터만 먼저 복원
+                raw_fixed = raw.replace("-----BEGIN PRIVATE\nKEY-----", "-----BEGIN PRIVATE KEY-----")
+                raw_fixed = raw_fixed.replace("-----END PRIVATE\nKEY-----", "-----END PRIVATE KEY-----")
+                # private_key 값 내부의 줄바꿈을 \\n 이스케이프로 복원
+                # JSON 파싱을 위해 모든 실제 줄바꿈을 \\n으로 변환
+                raw_fixed = raw_fixed.replace("\n", "\\n")
+                creds_dict = json.loads(raw_fixed)
                 creds = Credentials.from_service_account_info(creds_dict, scopes=scopes)
 
             gc = gspread.authorize(creds)
