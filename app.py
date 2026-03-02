@@ -373,5 +373,7 @@ with right_col:
         st.dataframe(df, use_container_width=True, hide_index=True)
 
     with st.expander("Pricing Tier 참조표"):
-        tier_df = pd.DataFrame(TIERS, columns=["Tier Score", "Price Low ($)", "Price High ($)"])
+        tier_df = pd.DataFrame(
+            [{"Tier Score": t, "Price Range ($)": f"{lo} – {hi}"} for t, lo, hi in TIERS]
+        )
         st.dataframe(tier_df, use_container_width=True, hide_index=True)
