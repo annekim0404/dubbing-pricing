@@ -375,4 +375,10 @@ with right_col:
         tier_df = pd.DataFrame(
             [{"Tier Score": t, "Price Range ($)": f"{lo} – {hi}"} for t, lo, hi in TIERS]
         )
-        st.dataframe(tier_df, use_container_width=True, hide_index=True)
+        st.dataframe(
+            tier_df.style.set_properties(**{"text-align": "center"}).set_table_styles(
+                [{"selector": "th", "props": [("text-align", "center")]}]
+            ),
+            use_container_width=True,
+            hide_index=True,
+        )
