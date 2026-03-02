@@ -271,6 +271,9 @@ with left_col:
             help="더빙 대상 노래의 총 길이(분)",
             disabled=(song_level == 0),
         )
+        song_price = song_cost_per_min * song_duration_min
+        if song_level > 0 and song_duration_min > 0:
+            st.markdown(f"<div style='font-size:0.85rem; font-weight:600; color:#0969da;'>노래 더빙 비용: ${int(song_price):,}</div>", unsafe_allow_html=True)
 
     with row2[2]:
         onscreen_text = st.selectbox(
