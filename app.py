@@ -263,21 +263,13 @@ with left_col:
         song_cost_per_min = SONG_DUB_LEVELS[song_level][1]
 
     with row2[1]:
-        # session_state에서 현재 값 읽어서 라벨에 가격 표시
-        cur_song_dur = st.session_state.get("song_dur_input", 0.0)
-        cur_song_price = song_cost_per_min * cur_song_dur
-        if song_level > 0 and cur_song_dur > 0:
-            song_dur_label = f"**총 노래 길이 (분)** — <span style='color:#0969da;'>${int(cur_song_price):,}</span>"
-        else:
-            song_dur_label = "**총 노래 길이 (분)**"
         song_duration_min = st.number_input(
-            song_dur_label,
+            "**총 노래 길이 (분)**",
             min_value=0.0,
             value=0.0,
             step=0.5,
             help="더빙 대상 노래의 총 길이(분)",
             disabled=(song_level == 0),
-            key="song_dur_input",
         )
 
     with row2[2]:
