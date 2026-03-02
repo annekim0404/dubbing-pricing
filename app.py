@@ -16,7 +16,7 @@ st.markdown(
     h1 {
         font-size: 2rem !important;
         margin-bottom: 1.5rem !important;
-        margin-top: -2rem !important;
+        margin-top: -3rem !important;
         text-align: center;
         white-space: nowrap;
     }
