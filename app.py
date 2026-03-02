@@ -386,7 +386,7 @@ with right_col:
                 creds = Credentials.from_service_account_file(creds_path, scopes=scopes)
             else:
                 # Streamlit Cloud: secrets에서 로드
-                creds_dict = dict(st.secrets["google_credentials"])
+                creds_dict = json.loads(st.secrets["GOOGLE_CREDENTIALS"])
                 creds = Credentials.from_service_account_info(creds_dict, scopes=scopes)
 
             gc = gspread.authorize(creds)
