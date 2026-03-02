@@ -369,6 +369,9 @@ with right_col:
     st.markdown("<div style='margin-top:2rem;'></div>", unsafe_allow_html=True)
     with st.expander("점수 상세 내역"):
         df = pd.DataFrame(breakdown_rows)
+        # 숫자를 문자열로 변환하여 왼쪽 정렬
+        df["점수"] = df["점수"].astype(str)
+        df["기여값"] = df["기여값"].astype(str)
         st.dataframe(df, use_container_width=True, hide_index=True)
 
     with st.expander("Pricing Tier 참조표"):
