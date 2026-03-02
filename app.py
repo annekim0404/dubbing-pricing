@@ -272,7 +272,8 @@ with left_col:
             disabled=(song_level == 0),
         )
 
-    with row2[2]:
+    row2b = st.columns(3)
+    with row2b[0]:
         onscreen_text = st.selectbox(
             "**온스크린 텍스트 더빙**",
             ["N — 해당 없음", "Y — 적용"],
@@ -291,14 +292,14 @@ with left_col:
             help="표준 납기일(TAT) 기준, 하루 앞당길 때마다 전체 비용의 10%씩 할증",
         )
     with row3[1]:
+        duration_min = st.number_input("**영상 분량 (분)**", min_value=1, value=60, step=1)
+
+    with row3[2]:
         rush_pct = rush_days * 10
         if rush_days > 0:
             st.markdown(f"<div style='padding-top:2rem; font-size:0.9rem; font-weight:600; color:#d9534f;'>+{rush_pct}% 할증 적용</div>", unsafe_allow_html=True)
         else:
             st.markdown("<div style='padding-top:2rem; font-size:0.9rem; color:#888;'>할증 없음</div>", unsafe_allow_html=True)
-
-    with row3[2]:
-        duration_min = st.number_input("**영상 분량 (분)**", min_value=1, value=60, step=1)
 
 # ===========================================================================
 # 오른쪽: 산출 결과
