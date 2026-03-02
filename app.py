@@ -293,9 +293,6 @@ with left_col:
             help="표준 납기일(TAT) 기준, 하루 앞당길 때마다 전체 비용의 10%씩 할증",
         )
     with row3[1]:
-        duration_min = st.number_input("**영상 분량 (분)**", min_value=1, value=60, step=1)
-
-    with row3[2]:
         rush_pct = rush_days * 10
         if rush_days > 0:
             st.markdown(f"<div style='padding-top:2rem; font-size:0.9rem; font-weight:600; color:#d9534f;'>+{rush_pct}% 할증 적용</div>", unsafe_allow_html=True)
@@ -306,6 +303,13 @@ with left_col:
 # 오른쪽: 산출 결과
 # ===========================================================================
 with right_col:
+    st.subheader("3. 산출 결과")
+
+    # 영상 분량은 산출결과 영역에서 입력받되, 계산에 먼저 사용하기 위해 session_state 활용
+    if "duration_input" not in st.session_state:
+        st.session_state["duration_input"] = 60
+    duration_min = st.session_state["duration_input"]
+
     # 계산
     weighted_sum = 0.0
     breakdown_rows = []
@@ -330,8 +334,6 @@ with right_col:
     rush_rate = rush_days * 0.10
     total_low = int(subtotal_low * (1 + rush_rate))
     total_high = int(subtotal_high * (1 + rush_rate))
-
-    st.subheader("3. 산출 결과")
 
     card_html = f"""
     <div style="
@@ -361,12 +363,11 @@ with right_col:
         <div style="font-size:1.3rem; font-weight:700; color:#0969da; margin-top:0.3rem;">
             ${total_low:,} – ${total_high:,}
         </div>
-        <div style="font-size:0.75rem; color:#888; margin-top:0.2rem;">
-            ({duration_min}분 기준)
-        </div>
     </div>
     """
     st.markdown(card_html, unsafe_allow_html=True)
+
+    duration_min = st.number_input("**영상 분량 (분)**", min_value=1, value=60, step=1, key="duration_input")
 
     st.markdown("<div style='margin-top:2rem;'></div>", unsafe_allow_html=True)
     with st.expander("점수 상세 내역"):
