@@ -169,7 +169,7 @@ SONG_DUB_LEVELS = {
     3: ("3단계 (상): 고음역대, 화려한 기교가 필요한 뮤지컬, 랩 등", 150000),
 }
 
-ONSCREEN_TEXT_COST_PER_MIN = 5  # $
+ONSCREEN_TEXT_COST_PER_MIN = 10  # $
 
 TIERS = [
     (1.0, 21, 30),
@@ -263,7 +263,7 @@ with osc_cols[0]:
         "**온스크린 텍스트 더빙**",
         ["N — 해당 없음", "Y — 적용"],
         index=0,
-        help="영상 내 텍스트(간판, 스마트폰 문자, 설명 자막 등)를 성우 음성으로 추가 번역/녹음하는 작업. 적용 시 분당 $5 추가.",
+        help="영상 내 텍스트(간판, 스마트폰 문자, 설명 자막 등)를 성우 음성으로 추가 번역/녹음하는 작업. 적용 시 분당 $10 추가.",
     )
     onscreen_yes = onscreen_text.startswith("Y")
 
@@ -331,21 +331,7 @@ rush_rate = rush_days * 0.10
 total_low = int(subtotal_low * (1 + rush_rate))
 total_high = int(subtotal_high * (1 + rush_rate))
 
-# 추가 비용 내역 문자열
-extras = []
-if song_level > 0:
-    extras.append(f"노래 더빙 {song_level}단계 ({song_duration_min}분): ${int(extra_song):,}")
-if onscreen_yes:
-    extras.append(f"온스크린 텍스트 더빙: ${int(extra_onscreen):,}")
-if rush_days > 0:
-    extras.append(f"긴급 작업 ({rush_days}일 단축): +{int(rush_rate*100)}% 할증")
 extras_html = ""
-if extras:
-    items = "".join(f"<div style='margin:2px 0;'>{e}</div>" for e in extras)
-    extras_html = f"""
-    <div style="font-size:0.85rem; color:#555; margin-top:0.8rem;">
-        {items}
-    </div>"""
 
 # 카드 스타일 결과 영역
 card_html = f"""
