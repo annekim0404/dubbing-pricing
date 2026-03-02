@@ -32,7 +32,7 @@ st.markdown(
         margin-bottom: 0.1rem !important;
     }
     .stSelectbox label p {
-        font-size: 11px !important;
+        font-size: 13px !important;
     }
     .stSelectbox {
         margin-bottom: -0.5rem;
@@ -46,7 +46,7 @@ st.markdown(
         font-size: 11px !important;
     }
     .stNumberInput label p {
-        font-size: 11px !important;
+        font-size: 13px !important;
     }
     .stNumberInput {
         margin-bottom: -0.5rem;
