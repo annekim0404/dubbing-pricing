@@ -4,6 +4,7 @@ import gspread
 from google.oauth2.service_account import Credentials
 import json
 import os
+import re
 
 st.set_page_config(page_title="가우디오랩 더빙 가격 산정기", page_icon="🎙️", layout="wide")
 
@@ -395,9 +396,8 @@ with right_col:
                 creds_dict = json.loads(st.secrets["GOOGLE_CREDENTIALS"], strict=False)
                 if "private_key" in creds_dict:
                     pk = creds_dict["private_key"]
-                    # TOML이 \n을 실제 줄바꿈으로 변환하여 헤더가 깨짐 → 복원
-                    pk = pk.replace("BEGIN PRIVATE\nKEY", "BEGIN PRIVATE KEY")
-                    pk = pk.replace("END PRIVATE\nKEY", "END PRIVATE KEY")
+                    pk = re.sub(r'-----BEGIN\s+PRIVATE\s+KEY-----', '-----BEGIN PRIVATE KEY-----', pk)
+                    pk = re.sub(r'-----END\s+PRIVATE\s+KEY-----', '-----END PRIVATE KEY-----', pk)
                     creds_dict["private_key"] = pk
                 creds = Credentials.from_service_account_info(creds_dict, scopes=scopes)
 
