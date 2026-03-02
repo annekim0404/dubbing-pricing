@@ -1,31 +1,23 @@
 import streamlit as st
 import pandas as pd
 
-st.set_page_config(page_title="가우디오랩 더빙 가격 산정기", page_icon="🎙️")
+st.set_page_config(page_title="가우디오랩 더빙 가격 산정기", page_icon="🎙️", layout="wide")
 
 st.title("가우디오랩 더빙 가격 산정기")
 st.markdown("<p style='text-align:center;'><strong>Gaudiolab Dubbing Price Standard</strong> 기준으로 분당 가격($)을 산출합니다.</p>", unsafe_allow_html=True)
 
-# 스타일: 중앙 정렬 + selectbox 라벨 폰트 크기
+# 스타일
 st.markdown(
     """
     <style>
     .block-container {
-        max-width: 900px;
+        max-width: 1200px;
         margin: 0 auto;
         padding-left: 2rem;
         padding-right: 2rem;
     }
     h1, h2, h3, [data-testid="stSubheader"] {
         text-align: center;
-    }
-    [data-testid="stMetric"] {
-        text-align: center;
-    }
-    [data-testid="stMetric"] > div {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
     }
     .stSelectbox label p {
         font-size: 16px !important;
@@ -36,6 +28,12 @@ st.markdown(
     .stSelectbox [data-baseweb="select"] span {
         white-space: normal !important;
         word-break: break-word !important;
+    }
+    /* 오른쪽 결과 패널 고정 */
+    [data-testid="stVerticalBlockBorderWrapper"]:has(> div > [data-testid="stVerticalBlock"] > [data-testid="stVerticalBlockBorderWrapper"] > div > [data-testid="stVerticalBlock"] > div.result-anchor) {
+        position: sticky;
+        top: 3.5rem;
+        align-self: flex-start;
     }
     </style>
     """,
@@ -192,192 +190,193 @@ def score_to_tier(score: float):
 
 
 # ---------------------------------------------------------------------------
-# UI
+# 2단 레이아웃: 왼쪽(입력) / 오른쪽(결과)
 # ---------------------------------------------------------------------------
 
-st.markdown("---")
-st.subheader("1. 단가 산정 기준")
+left_col, right_col = st.columns([3, 2], gap="large")
 
-selections: dict[str, int] = {}
-current_category = None
+# ===========================================================================
+# 왼쪽: 입력 항목 (1, 2, 3번)
+# ===========================================================================
+with left_col:
+    st.markdown("---")
+    st.subheader("1. 단가 산정 기준")
 
-cols = st.columns(2)
-col_idx = 0
+    selections: dict[str, int] = {}
+    current_category = None
+    cols = st.columns(2)
+    col_idx = 0
 
-for factor in FACTORS:
-    cat = factor["category"]
-    if cat != current_category:
-        current_category = cat
-        st.markdown(f"#### {cat}")
-        cols = st.columns(2)
-        col_idx = 0
+    for factor in FACTORS:
+        cat = factor["category"]
+        if cat != current_category:
+            current_category = cat
+            st.markdown(f"#### {cat}")
+            cols = st.columns(2)
+            col_idx = 0
 
-    with cols[col_idx % 2]:
-        score_options = sorted(factor["scores"].keys())
-        labels = [f"{s}점 — {factor['scores'][s]}" for s in score_options]
-        default_idx = 0
+        with cols[col_idx % 2]:
+            score_options = sorted(factor["scores"].keys())
+            labels = [f"{s}점 — {factor['scores'][s]}" for s in score_options]
+            default_idx = 0
 
-        chosen_label = st.selectbox(
-            f"**{factor['name']}** (가중치 {factor['weight']:.0%})",
-            labels,
-            index=default_idx,
-            help=factor["description"],
-            key=factor["name"],
+            chosen_label = st.selectbox(
+                f"**{factor['name']}** (가중치 {factor['weight']:.0%})",
+                labels,
+                index=default_idx,
+                help=factor["description"],
+                key=factor["name"],
+            )
+            chosen_score = score_options[labels.index(chosen_label)]
+            selections[factor["name"]] = chosen_score
+        col_idx += 1
+
+    # -----------------------------------------------------------------------
+    # 2. 특수 작업 / 제작 환경
+    # -----------------------------------------------------------------------
+    st.markdown("---")
+    st.subheader("2. 특수 작업 / 제작 환경")
+
+    st.markdown("#### 특수 작업")
+    song_cols = st.columns(2)
+    with song_cols[0]:
+        song_labels = [f"{k} — {v[0]}" for k, v in SONG_DUB_LEVELS.items()]
+        song_choice = st.selectbox(
+            "**노래 더빙** (난이도)",
+            song_labels,
+            index=0,
+            help="노래를 나레이션이 아닌 더빙으로 처리할 경우 난이도를 선택하세요.",
         )
-        chosen_score = score_options[labels.index(chosen_label)]
-        selections[factor["name"]] = chosen_score
-    col_idx += 1
+        song_level = int(song_choice.split(" — ")[0])
+        song_cost_per_min = SONG_DUB_LEVELS[song_level][1]
 
-# ---------------------------------------------------------------------------
-# 특수 작업 / 제작 환경
-# ---------------------------------------------------------------------------
-st.markdown("---")
-st.subheader("2. 특수 작업 / 제작 환경")
+    with song_cols[1]:
+        song_duration_min = st.number_input(
+            "**총 노래 길이 (분)**",
+            min_value=0.0,
+            value=0.0,
+            step=0.5,
+            help="더빙 대상 노래의 총 길이(분)",
+            disabled=(song_level == 0),
+        )
 
-st.markdown("#### 특수 작업")
-song_cols = st.columns(2)
-with song_cols[0]:
-    song_labels = [f"{k} — {v[0]}" for k, v in SONG_DUB_LEVELS.items()]
-    song_choice = st.selectbox(
-        "**노래 더빙** (난이도)",
-        song_labels,
-        index=0,
-        help="노래를 나레이션이 아닌 더빙으로 처리할 경우 난이도를 선택하세요.",
-    )
-    song_level = int(song_choice.split(" — ")[0])
-    song_cost_per_min = SONG_DUB_LEVELS[song_level][1]
+    osc_cols = st.columns(2)
+    with osc_cols[0]:
+        onscreen_text = st.selectbox(
+            "**온스크린 텍스트 더빙**",
+            ["N — 해당 없음", "Y — 적용"],
+            index=0,
+            help="영상 내 텍스트(간판, 스마트폰 문자, 설명 자막 등)를 성우 음성으로 추가 번역/녹음하는 작업. 적용 시 분당 $10 추가.",
+        )
+        onscreen_yes = onscreen_text.startswith("Y")
 
-with song_cols[1]:
-    song_duration_min = st.number_input(
-        "**총 노래 길이 (분)**",
-        min_value=0.0,
-        value=0.0,
-        step=0.5,
-        help="더빙 대상 노래의 총 길이(분)",
-        disabled=(song_level == 0),
-    )
+    st.markdown("#### 제작 환경")
+    rush_cols = st.columns(2)
+    with rush_cols[0]:
+        rush_days = st.number_input(
+            "**긴급 작업 — 납기 단축 일수**",
+            min_value=0,
+            value=0,
+            step=1,
+            help="표준 납기일(TAT) 기준, 하루를 앞당길 때마다 전체 비용의 10%씩 할증 적용",
+        )
+    with rush_cols[1]:
+        rush_pct = rush_days * 10
+        if rush_days > 0:
+            st.markdown(f"<div style='padding-top:2.2rem; font-size:1.1rem; font-weight:600; color:#d9534f;'>+{rush_pct}% 할증 적용</div>", unsafe_allow_html=True)
+        else:
+            st.markdown("<div style='padding-top:2.2rem; font-size:1.1rem; color:#888;'>할증 없음</div>", unsafe_allow_html=True)
 
-osc_cols = st.columns(2)
-with osc_cols[0]:
-    onscreen_text = st.selectbox(
-        "**온스크린 텍스트 더빙**",
-        ["N — 해당 없음", "Y — 적용"],
-        index=0,
-        help="영상 내 텍스트(간판, 스마트폰 문자, 설명 자막 등)를 성우 음성으로 추가 번역/녹음하는 작업. 적용 시 분당 $10 추가.",
-    )
-    onscreen_yes = onscreen_text.startswith("Y")
+    # -----------------------------------------------------------------------
+    # 3. 영상 길이
+    # -----------------------------------------------------------------------
+    st.markdown("---")
+    st.subheader("3. 영상 길이 (분)")
+    duration_min = st.number_input("영상 분량 (분)", min_value=1, value=60, step=1)
 
-st.markdown("#### 제작 환경")
-rush_cols = st.columns(2)
-with rush_cols[0]:
-    rush_days = st.number_input(
-        "**긴급 작업 — 납기 단축 일수**",
-        min_value=0,
-        value=0,
-        step=1,
-        help="표준 납기일(TAT) 기준, 하루를 앞당길 때마다 전체 비용의 10%씩 할증 적용",
-    )
-with rush_cols[1]:
-    rush_pct = rush_days * 10
-    if rush_days > 0:
-        st.markdown(f"<div style='padding-top:2.2rem; font-size:1.1rem; font-weight:600; color:#d9534f;'>+{rush_pct}% 할증 적용</div>", unsafe_allow_html=True)
-    else:
-        st.markdown("<div style='padding-top:2.2rem; font-size:1.1rem; color:#888;'>할증 없음</div>", unsafe_allow_html=True)
 
-# ---------------------------------------------------------------------------
-# 영상 길이 입력
-# ---------------------------------------------------------------------------
-st.markdown("---")
-st.subheader("3. 영상 길이 (분)")
-duration_min = st.number_input("영상 분량 (분)", min_value=1, value=60, step=1)
+# ===========================================================================
+# 오른쪽: 산출 결과 (4, 5번)
+# ===========================================================================
+with right_col:
+    # CSS sticky 앵커용
+    st.markdown("<div class='result-anchor'></div>", unsafe_allow_html=True)
 
-# ---------------------------------------------------------------------------
-# 계산
-# ---------------------------------------------------------------------------
-st.markdown("---")
-st.subheader("4. 산출 결과")
+    # --- 계산 ---
+    weighted_sum = 0.0
+    breakdown_rows = []
+    for factor in FACTORS:
+        s = selections[factor["name"]]
+        w = factor["weight"]
+        contrib = s * w
+        weighted_sum += contrib
+        breakdown_rows.append(
+            {
+                "항목": factor["name"],
+                "점수": s,
+                "가중치": f"{w:.0%}",
+                "기여값": round(contrib, 3),
+            }
+        )
 
-weighted_sum = 0.0
-breakdown_rows = []
-for factor in FACTORS:
-    s = selections[factor["name"]]
-    w = factor["weight"]
-    contrib = s * w
-    weighted_sum += contrib
-    breakdown_rows.append(
-        {
-            "항목": factor["name"],
-            "점수": s,
-            "가중치": f"{w:.0%}",
-            "기여값": round(contrib, 3),
-        }
-    )
+    tier_score, price_low, price_high = score_to_tier(weighted_sum)
 
-tier_score, price_low, price_high = score_to_tier(weighted_sum)
+    base_low = price_low * duration_min
+    base_high = price_high * duration_min
 
-# 기본 더빙 비용
-base_low = price_low * duration_min
-base_high = price_high * duration_min
+    extra_song = song_cost_per_min * song_duration_min if song_level > 0 else 0
+    extra_onscreen = ONSCREEN_TEXT_COST_PER_MIN * duration_min if onscreen_yes else 0
+    extra_total = extra_song + extra_onscreen
 
-# 특수 작업 추가 비용
-extra_song = song_cost_per_min * song_duration_min if song_level > 0 else 0
-extra_onscreen = ONSCREEN_TEXT_COST_PER_MIN * duration_min if onscreen_yes else 0
-extra_total = extra_song + extra_onscreen
+    subtotal_low = base_low + extra_total
+    subtotal_high = base_high + extra_total
+    rush_rate = rush_days * 0.10
+    total_low = int(subtotal_low * (1 + rush_rate))
+    total_high = int(subtotal_high * (1 + rush_rate))
 
-# 긴급 작업 할증 (기본 + 특수 합산 후 적용)
-subtotal_low = base_low + extra_total
-subtotal_high = base_high + extra_total
-rush_rate = rush_days * 0.10
-total_low = int(subtotal_low * (1 + rush_rate))
-total_high = int(subtotal_high * (1 + rush_rate))
+    # --- 4. 산출 결과 카드 ---
+    st.subheader("4. 산출 결과")
 
-extras_html = ""
-
-# 카드 스타일 결과 영역
-card_html = f"""
-<div style="
-    background: #e8f4fd;
-    border-radius: 16px;
-    padding: 2rem 1.5rem;
-    margin: 1rem 0;
-    border: 1px solid #b8ddf0;
-    text-align: center;
-">
-    <div style="display:flex; justify-content:center; gap:2rem; flex-wrap:wrap; margin-bottom:1.5rem;">
-        <div style="flex:1; min-width:150px;">
-            <div style="font-size:0.85rem; color:#666; margin-bottom:4px;">가중 합산 점수</div>
-            <div style="font-size:1.8rem; font-weight:700; color:#1a1a2e;">{weighted_sum:.2f} <span style="font-size:1rem; color:#999;">/ 5.00</span></div>
+    card_html = f"""
+    <div style="
+        background: #e8f4fd;
+        border-radius: 16px;
+        padding: 1.5rem 1.2rem;
+        margin: 0.5rem 0;
+        border: 1px solid #b8ddf0;
+        text-align: center;
+    ">
+        <div style="display:flex; justify-content:center; gap:1.2rem; flex-wrap:wrap; margin-bottom:1rem;">
+            <div style="flex:1; min-width:100px;">
+                <div style="font-size:0.8rem; color:#666; margin-bottom:4px;">가중 합산 점수</div>
+                <div style="font-size:1.5rem; font-weight:700; color:#1a1a2e;">{weighted_sum:.2f} <span style="font-size:0.85rem; color:#999;">/ 5.00</span></div>
+            </div>
+            <div style="flex:1; min-width:100px;">
+                <div style="font-size:0.8rem; color:#666; margin-bottom:4px;">Pricing Tier</div>
+                <div style="font-size:1.5rem; font-weight:700; color:#1a1a2e;">{tier_score:.1f}</div>
+            </div>
+            <div style="flex:1; min-width:100px;">
+                <div style="font-size:0.8rem; color:#666; margin-bottom:4px;">분당 가격 범위</div>
+                <div style="font-size:1.5rem; font-weight:700; color:#1a1a2e;">${price_low} – ${price_high}</div>
+            </div>
         </div>
-        <div style="flex:1; min-width:150px;">
-            <div style="font-size:0.85rem; color:#666; margin-bottom:4px;">Pricing Tier</div>
-            <div style="font-size:1.8rem; font-weight:700; color:#1a1a2e;">{tier_score:.1f}</div>
-        </div>
-        <div style="flex:1; min-width:150px;">
-            <div style="font-size:0.85rem; color:#666; margin-bottom:4px;">분당 가격 범위</div>
-            <div style="font-size:1.8rem; font-weight:700; color:#1a1a2e;">${price_low} – ${price_high}</div>
+        <hr style="border:none; border-top:1px solid #b8ddf0; margin:0.8rem 0;">
+        <div style="font-size:1.3rem; font-weight:700; color:#1a1a2e; margin-top:0.5rem;">
+            예상 총 비용: <span style="color:#0969da;">${total_low:,} – ${total_high:,}</span>
+            <span style="font-size:0.85rem; color:#888; font-weight:400;">({duration_min}분 기준)</span>
         </div>
     </div>
-    <hr style="border:none; border-top:1px solid #b8ddf0; margin:1rem 0;">
-    <div style="font-size:1.4rem; font-weight:700; color:#1a1a2e; margin-top:0.5rem;">
-        예상 총 비용: <span style="color:#0969da;">${total_low:,} – ${total_high:,}</span>
-        <span style="font-size:0.9rem; color:#888; font-weight:400;">({duration_min}분 기준)</span>
-    </div>
-    {extras_html}
-</div>
-"""
-st.markdown(card_html, unsafe_allow_html=True)
+    """
+    st.markdown(card_html, unsafe_allow_html=True)
 
-# 상세 내역 테이블
-with st.expander("점수 상세 내역 보기"):
-    df = pd.DataFrame(breakdown_rows)
-    st.dataframe(df, use_container_width=True, hide_index=True)
+    with st.expander("점수 상세 내역 보기"):
+        df = pd.DataFrame(breakdown_rows)
+        st.dataframe(df, use_container_width=True, hide_index=True)
 
-# ---------------------------------------------------------------------------
-# Pricing Tier 참조 테이블
-# ---------------------------------------------------------------------------
-st.markdown("---")
-st.subheader("5. Pricing Tier 참조표")
-tier_df = pd.DataFrame(
-    TIERS, columns=["Tier Score", "Price Low ($)", "Price High ($)"]
-)
-st.dataframe(tier_df, use_container_width=True, hide_index=True)
+    # --- 5. Pricing Tier 참조표 ---
+    st.markdown("---")
+    st.subheader("5. Pricing Tier 참조표")
+    tier_df = pd.DataFrame(
+        TIERS, columns=["Tier Score", "Price Low ($)", "Price High ($)"]
+    )
+    st.dataframe(tier_df, use_container_width=True, hide_index=True)
