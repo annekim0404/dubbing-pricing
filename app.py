@@ -379,7 +379,7 @@ with right_col:
 
     song_price = song_cost_per_min * song_duration_min if song_level > 0 else 0
     copy_rows = [
-        content_name or "",
+        f"{content_name} (최종)" if is_final and content_name else (content_name or ""),
         str(selections["연기력 난이도"]),
         str(selections["립싱크 난이도"]),
         str(selections["음질 난이도"]),
@@ -398,7 +398,11 @@ with right_col:
     ]
     copy_text = "\n".join(copy_rows)
 
-    save_clicked = st.button("📊 시트에 저장", disabled=(not content_name))
+    btn_col1, btn_col2 = st.columns([1, 2])
+    with btn_col1:
+        is_final = st.checkbox("최종", key="is_final")
+    with btn_col2:
+        save_clicked = st.button("📊 시트에 저장", disabled=(not content_name))
 
     if save_clicked:
         try:
