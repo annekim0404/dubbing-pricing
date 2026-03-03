@@ -4,7 +4,6 @@ import gspread
 from google.oauth2.service_account import Credentials
 import json
 import os
-import re
 
 st.set_page_config(page_title="가우디오랩 더빙 가격 산정기", page_icon="🎙️", layout="wide")
 
@@ -378,13 +377,7 @@ with right_col:
     st.markdown("<div style='margin-top:1rem;'></div>", unsafe_allow_html=True)
     content_name = st.text_input("**콘텐츠 이름**", placeholder="예: Nosy's Inspiration", key="content_name")
 
-    btn_col1, btn_col2 = st.columns([1, 2])
-    with btn_col1:
-        is_final = st.checkbox("최종", key="is_final")
-    with btn_col2:
-        save_clicked = st.button("📊 시트에 저장", disabled=(not content_name))
-
-    if save_clicked:
+    if st.button("📊 시트에 저장", disabled=(not content_name)):
         try:
             # 서비스 계정 인증
             scopes = ["https://www.googleapis.com/auth/spreadsheets"]
@@ -392,37 +385,35 @@ with right_col:
             if os.path.exists(creds_path):
                 creds = Credentials.from_service_account_file(creds_path, scopes=scopes)
             else:
-                # Streamlit Cloud: secrets에서 TOML 섹션으로 로드
-                creds_dict = dict(st.secrets["GOOGLE_CREDENTIALS"])
+                # Streamlit Cloud: secrets에서 로드
+                creds_dict = json.loads(st.secrets["GOOGLE_CREDENTIALS"])
                 creds = Credentials.from_service_account_info(creds_dict, scopes=scopes)
 
             gc = gspread.authorize(creds)
             sh = gc.open_by_key("1CbSzVgQBD1HAa_pnGASNB76vb2fyJ_eDG3mXqt6Cxqs")
-            ws = sh.worksheet("log")
+            ws = sh.get_worksheet_by_id(513807427)
 
-            # 다음 빈 열 찾기 (Row 1 기준)
+            # 다음 빈 열 찾기
             header_row = ws.row_values(1)
             next_col = len(header_row) + 1
 
-            # 데이터 구성 (log 시트 Row 1~16에 맞춤)
-            song_price = song_cost_per_min * song_duration_min if song_level > 0 else 0
+            # 데이터 구성 (시트 Row 1~18에 맞춤)
             col_data = [
-                f"{content_name} (최종)" if is_final else content_name,  # Row 1: 콘텐츠 이름
-                str(selections["연기력 난이도"]),                      # Row 2: 연기력
-                str(selections["립싱크 난이도"]),                      # Row 3: 립싱크
-                str(selections["음질 난이도"]),                        # Row 4: 음질
-                str(selections["시리즈 vs. 단편"]),                   # Row 5: 시리즈
-                str(selections["등장 인물 수"]),                       # Row 6: 등장인물
-                str(selections["특수 목소리 구현 필요성"]),             # Row 7: 특수목소리
-                str(selections["Input/Output 언어 종류"]),            # Row 8: 언어종류
-                str(selections["번역 난이도"]),                        # Row 9: 번역
-                str(selections["발음/억양 난이도"]),                   # Row 10: 발음/억양
-                f"{song_level}단계 (${int(song_price)})" if song_level > 0 else "없음",  # Row 11: 노래 더빙
-                "Y" if onscreen_yes else "N",                        # Row 12: 온스크린 텍스트
-                f"{rush_days}일" if rush_days > 0 else "없음",       # Row 13: 긴급작업
-                str(int(tier_score)),                                # Row 14: TIER
-                f"{duration_min}분",                                 # Row 15: 영상 길이
-                f"${total_low:,} – ${total_high:,}",                 # Row 16: 최종 가격 범위
+                content_name,                                    # Row 1: 콘텐츠 이름
+                str(selections["연기력 난이도"]),                  # Row 2: 연기력
+                str(selections["립싱크 난이도"]),                  # Row 3: 립싱크
+                str(selections["시리즈 vs. 단편"]),               # Row 4: 시리즈
+                str(selections["등장 인물 수"]),                   # Row 5: 등장인물
+                str(selections["특수 목소리 구현 필요성"]),         # Row 6: 특수목소리
+                str(selections["Input/Output 언어 종류"]),        # Row 7: 언어종류
+                str(selections["번역 난이도"]),                    # Row 8: 번역
+                str(selections["발음/억양 난이도"]),               # Row 9: 발음/억양
+                f"{'yes' if rush_days > 0 else 'no'}",          # Row 10: 긴급작업
+                "",                                              # Row 11
+                "",                                              # Row 12
+                "Price",                                         # Row 13
+                f"Tier {int(tier_score)}",                       # Row 14: Tier
+                f"${price_low}-${price_high}/min",               # Row 15: 분당가격
             ]
 
             # 열에 데이터 쓰기
