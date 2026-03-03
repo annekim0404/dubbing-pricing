@@ -392,16 +392,8 @@ with right_col:
             if os.path.exists(creds_path):
                 creds = Credentials.from_service_account_file(creds_path, scopes=scopes)
             else:
-                # Streamlit Cloud: secrets에서 로드
-                creds_dict = json.loads(st.secrets["GOOGLE_CREDENTIALS"], strict=False)
-                if "private_key" in creds_dict:
-                    pk = creds_dict["private_key"]
-                    # 리터럴 \n(백슬래시+n)을 실제 줄바꿈으로 변환
-                    pk = pk.replace("\\n", "\n")
-                    # 헤더/푸터 복원
-                    pk = re.sub(r'-----BEGIN\s+PRIVATE\s+KEY-----', '-----BEGIN PRIVATE KEY-----', pk)
-                    pk = re.sub(r'-----END\s+PRIVATE\s+KEY-----', '-----END PRIVATE KEY-----', pk)
-                    creds_dict["private_key"] = pk
+                # Streamlit Cloud: secrets에서 TOML 섹션으로 로드
+                creds_dict = dict(st.secrets["GOOGLE_CREDENTIALS"])
                 creds = Credentials.from_service_account_info(creds_dict, scopes=scopes)
 
             gc = gspread.authorize(creds)
