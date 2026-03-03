@@ -1,5 +1,9 @@
 import streamlit as st
 import pandas as pd
+import gspread
+from google.oauth2.service_account import Credentials
+import json
+import os
 
 st.set_page_config(page_title="가우디오랩 더빙 가격 산정기", page_icon="🎙️", layout="wide")
 
@@ -395,15 +399,46 @@ with right_col:
     copy_text = "\n".join(copy_rows)
 
     st.code(copy_text, language=None)
-    st.markdown(
-        f"""
-        <button onclick="navigator.clipboard.writeText(`{copy_text}`).then(()=>this.textContent='✅ 복사 완료!')"
-        style="background:#0969da; color:white; border:none; padding:0.4rem 1.2rem; border-radius:6px; cursor:pointer; font-size:0.85rem;">
-        📋 시트 붙여넣기용 복사
-        </button>
-        """,
-        unsafe_allow_html=True,
-    )
+
+    btn_col1, btn_col2 = st.columns(2)
+    with btn_col1:
+        st.markdown(
+            f"""
+            <button onclick="navigator.clipboard.writeText(`{copy_text}`).then(()=>this.textContent='✅ 복사 완료!')"
+            style="background:#0969da; color:white; border:none; padding:0.4rem 1.2rem; border-radius:6px; cursor:pointer; font-size:0.85rem;">
+            📋 복사
+            </button>
+            """,
+            unsafe_allow_html=True,
+        )
+    with btn_col2:
+        save_clicked = st.button("📊 시트에 저장", disabled=(not content_name))
+
+    if save_clicked:
+        try:
+            scopes = ["https://www.googleapis.com/auth/spreadsheets"]
+            creds_path = os.path.join(os.path.dirname(__file__), "gaudio-dubbing-price-111e0a56f688.json")
+            if os.path.exists(creds_path):
+                creds = Credentials.from_service_account_file(creds_path, scopes=scopes)
+            else:
+                creds_dict = dict(st.secrets["GOOGLE_CREDENTIALS"])
+                creds = Credentials.from_service_account_info(creds_dict, scopes=scopes)
+
+            gc = gspread.authorize(creds)
+            sh = gc.open_by_key("1CbSzVgQBD1HAa_pnGASNB76vb2fyJ_eDG3mXqt6Cxqs")
+            ws = sh.worksheet("log")
+
+            header_row = ws.row_values(1)
+            next_col = len(header_row) + 1
+
+            cells = []
+            for i, val in enumerate(copy_rows):
+                cells.append(gspread.Cell(row=i + 1, col=next_col, value=val))
+            ws.update_cells(cells)
+
+            st.success(f"'{content_name}' 저장 완료!")
+        except Exception as e:
+            st.error(f"저장 실패: {e}")
 
     st.markdown("<div style='margin-top:1rem;'></div>", unsafe_allow_html=True)
     with st.expander("점수 상세 내역"):
