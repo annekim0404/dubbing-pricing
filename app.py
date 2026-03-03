@@ -369,6 +369,42 @@ with right_col:
 
     duration_min = st.number_input("**영상 분량 (분)**", min_value=1, value=60, step=1, key="duration_input")
 
+    # --- 시트 복사용 ---
+    st.markdown("<div style='margin-top:1rem;'></div>", unsafe_allow_html=True)
+    content_name = st.text_input("**콘텐츠 이름**", placeholder="예: Nosy's Inspiration", key="content_name")
+
+    song_price = song_cost_per_min * song_duration_min if song_level > 0 else 0
+    copy_rows = [
+        content_name or "",
+        str(selections["연기력 난이도"]),
+        str(selections["립싱크 난이도"]),
+        str(selections["음질 난이도"]),
+        str(selections["시리즈 vs. 단편"]),
+        str(selections["등장 인물 수"]),
+        str(selections["특수 목소리 구현 필요성"]),
+        str(selections["Input/Output 언어 종류"]),
+        str(selections["번역 난이도"]),
+        str(selections["발음/억양 난이도"]),
+        f"{song_level}단계 (${int(song_price)})" if song_level > 0 else "없음",
+        "Y" if onscreen_yes else "N",
+        f"{rush_days}일" if rush_days > 0 else "없음",
+        str(int(tier_score)),
+        f"{duration_min}분",
+        f"${total_low:,} – ${total_high:,}",
+    ]
+    copy_text = "\n".join(copy_rows)
+
+    st.code(copy_text, language=None)
+    st.markdown(
+        f"""
+        <button onclick="navigator.clipboard.writeText(`{copy_text}`).then(()=>this.textContent='✅ 복사 완료!')"
+        style="background:#0969da; color:white; border:none; padding:0.4rem 1.2rem; border-radius:6px; cursor:pointer; font-size:0.85rem;">
+        📋 시트 붙여넣기용 복사
+        </button>
+        """,
+        unsafe_allow_html=True,
+    )
+
     st.markdown("<div style='margin-top:1rem;'></div>", unsafe_allow_html=True)
     with st.expander("점수 상세 내역"):
         df = pd.DataFrame(breakdown_rows)
