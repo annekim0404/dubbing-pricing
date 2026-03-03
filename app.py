@@ -398,21 +398,7 @@ with right_col:
     ]
     copy_text = "\n".join(copy_rows)
 
-    st.code(copy_text, language=None)
-
-    btn_col1, btn_col2 = st.columns(2)
-    with btn_col1:
-        st.markdown(
-            f"""
-            <button onclick="navigator.clipboard.writeText(`{copy_text}`).then(()=>this.textContent='✅ 복사 완료!')"
-            style="background:#0969da; color:white; border:none; padding:0.4rem 1.2rem; border-radius:6px; cursor:pointer; font-size:0.85rem;">
-            📋 복사
-            </button>
-            """,
-            unsafe_allow_html=True,
-        )
-    with btn_col2:
-        save_clicked = st.button("📊 시트에 저장", disabled=(not content_name))
+    save_clicked = st.button("📊 시트에 저장", disabled=(not content_name))
 
     if save_clicked:
         try:
