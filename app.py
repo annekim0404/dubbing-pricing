@@ -1,9 +1,5 @@
 import streamlit as st
 import pandas as pd
-import gspread
-from google.oauth2.service_account import Credentials
-import json
-import os
 
 st.set_page_config(page_title="가우디오랩 더빙 가격 산정기", page_icon="🎙️", layout="wide")
 
@@ -372,59 +368,6 @@ with right_col:
     st.markdown(card_html, unsafe_allow_html=True)
 
     duration_min = st.number_input("**영상 분량 (분)**", min_value=1, value=60, step=1, key="duration_input")
-
-    # --- 시트 저장 ---
-    st.markdown("<div style='margin-top:1rem;'></div>", unsafe_allow_html=True)
-    content_name = st.text_input("**콘텐츠 이름**", placeholder="예: Nosy's Inspiration", key="content_name")
-
-    if st.button("📊 시트에 저장", disabled=(not content_name)):
-        try:
-            # 서비스 계정 인증
-            scopes = ["https://www.googleapis.com/auth/spreadsheets"]
-            creds_path = os.path.join(os.path.dirname(__file__), "gaudio-dubbing-price-111e0a56f688.json")
-            if os.path.exists(creds_path):
-                creds = Credentials.from_service_account_file(creds_path, scopes=scopes)
-            else:
-                # Streamlit Cloud: TOML 섹션에서 로드
-                creds_dict = dict(st.secrets["GOOGLE_CREDENTIALS"])
-                creds = Credentials.from_service_account_info(creds_dict, scopes=scopes)
-
-            gc = gspread.authorize(creds)
-            sh = gc.open_by_key("1CbSzVgQBD1HAa_pnGASNB76vb2fyJ_eDG3mXqt6Cxqs")
-            ws = sh.get_worksheet_by_id(513807427)
-
-            # 다음 빈 열 찾기
-            header_row = ws.row_values(1)
-            next_col = len(header_row) + 1
-
-            # 데이터 구성 (시트 Row 1~18에 맞춤)
-            col_data = [
-                content_name,                                    # Row 1: 콘텐츠 이름
-                str(selections["연기력 난이도"]),                  # Row 2: 연기력
-                str(selections["립싱크 난이도"]),                  # Row 3: 립싱크
-                str(selections["시리즈 vs. 단편"]),               # Row 4: 시리즈
-                str(selections["등장 인물 수"]),                   # Row 5: 등장인물
-                str(selections["특수 목소리 구현 필요성"]),         # Row 6: 특수목소리
-                str(selections["Input/Output 언어 종류"]),        # Row 7: 언어종류
-                str(selections["번역 난이도"]),                    # Row 8: 번역
-                str(selections["발음/억양 난이도"]),               # Row 9: 발음/억양
-                f"{'yes' if rush_days > 0 else 'no'}",          # Row 10: 긴급작업
-                "",                                              # Row 11
-                "",                                              # Row 12
-                "Price",                                         # Row 13
-                f"Tier {int(tier_score)}",                       # Row 14: Tier
-                f"${price_low}-${price_high}/min",               # Row 15: 분당가격
-            ]
-
-            # 열에 데이터 쓰기
-            cells = []
-            for i, val in enumerate(col_data):
-                cells.append(gspread.Cell(row=i + 1, col=next_col, value=val))
-            ws.update_cells(cells)
-
-            st.success(f"'{content_name}' 저장 완료!")
-        except Exception as e:
-            st.error(f"저장 실패: {e}")
 
     st.markdown("<div style='margin-top:1rem;'></div>", unsafe_allow_html=True)
     with st.expander("점수 상세 내역"):
