@@ -377,6 +377,12 @@ with right_col:
     st.markdown("<div style='margin-top:1rem;'></div>", unsafe_allow_html=True)
     content_name = st.text_input("**콘텐츠 이름**", placeholder="예: Nosy's Inspiration", key="content_name")
 
+    btn_col1, btn_col2 = st.columns([1, 2])
+    with btn_col1:
+        is_final = st.checkbox("최종", key="is_final")
+    with btn_col2:
+        save_clicked = st.button("📊 시트에 저장", disabled=(not content_name))
+
     song_price = song_cost_per_min * song_duration_min if song_level > 0 else 0
     copy_rows = [
         f"{content_name} (최종)" if is_final and content_name else (content_name or ""),
@@ -397,12 +403,6 @@ with right_col:
         f"${total_low:,} – ${total_high:,}",
     ]
     copy_text = "\n".join(copy_rows)
-
-    btn_col1, btn_col2 = st.columns([1, 2])
-    with btn_col1:
-        is_final = st.checkbox("최종", key="is_final")
-    with btn_col2:
-        save_clicked = st.button("📊 시트에 저장", disabled=(not content_name))
 
     if save_clicked:
         try:
